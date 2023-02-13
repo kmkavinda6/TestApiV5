@@ -15,7 +15,12 @@ namespace TestApi.Data
         public DbSet<TestApi.Models.Store> Store { get; set; }
 
 
-       
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Order>()
+                .Property(o => o.totalAmount)
+                .HasColumnType("decimal(18, 2)");
+        }
 
     }
 }
