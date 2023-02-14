@@ -9,7 +9,9 @@ namespace TestApi.Data
         {
         }
         public DbSet<TestApi.Models.Item> Item { get; set; }
-        public DbSet<TestApi.Models.User> User { get; set; }
+        public DbSet<TestApi.Models.SalesRep> SalesReps { get; set; }
+        public DbSet<TestApi.Models.Admin> Admins { get; set; }
+        public DbSet<TestApi.Models.Manager> Managers { get; set; }
         public DbSet<TestApi.Models.Order> Order { get; set; }
         public DbSet<TestApi.Models.Stock> Stock { get; set; }
         public DbSet<TestApi.Models.Store> Store { get; set; }

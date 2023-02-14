@@ -4,15 +4,31 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TestApi.Models
 {
-    [Index(IsUnique = true)]
-    public class Manager : User
+    
+    public class Manager 
     {
 
 
-        
-        public int managerID { get; set; }
+        [Key]
+        public int ManagerID { get; set; }
 
-        public User user { get; set; }
+
+        public string UserName { get; set; } = string.Empty;
+
+        public string FName { get; set; } = string.Empty;
+
+        public string Lname { get; set; } = string.Empty;
+
+        public string Address { get; set; } = string.Empty;
+
+        public string PhoneNo { get; set; } = string.Empty;
+
+        public string Nic { get; set; } = string.Empty;
+
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; } = string.Empty;
+
+        public string Password { get; set; } = string.Empty;
 
 
     }

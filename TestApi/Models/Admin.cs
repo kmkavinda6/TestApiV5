@@ -5,18 +5,29 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TestApi.Models
 {
     //[Index(IsUnique = true)]
-    public class Admin : User
+    public class Admin
     {
 
-        /*[ForeignKey("User")]
-        public int UserID { get; set; }*/
-        public int adminID { get; set; }
+        
+        public int AdminID { get; set; }
 
-        public virtual User User { get; set; }
-        /*public User? user { get; set; }
 
-        [ForeignKey("userID")]
-        public int userID { get; set; }*/
+        public string UserName { get; set; } = string.Empty;
+
+        public string FName { get; set; } = string.Empty;
+
+        public string Lname { get; set; } = string.Empty;
+
+        public string Address { get; set; } = string.Empty;
+
+        public string PhoneNo { get; set; } = string.Empty;
+
+        public string Nic { get; set; } = string.Empty;
+
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; } = string.Empty;
+
+        public string Password { get; set; } = string.Empty;
 
 
 
