@@ -6,23 +6,26 @@ namespace TestApi.Models
     public class Order
     {
         [Key]
-        public int orderID { get; set; }
+        public int OrderID { get; set; }
 
         [Required]
-        public int storeID { get; set; }
+        public int StoreID { get; set; }
 
         [Required]
-        public int itemID { get; set; }
-
-        public decimal totalAmount { get; set; }
+        public int SalesRepID { get; set; }
 
         [Required]
-        public int qty { get; set; }
+        public int ItemID { get; set; }
+
+        public decimal TotalAmount { get; set; }
 
         [Required]
-        public DateTime date { get; set; }
+        public int Qty { get; set; }
 
-        public bool isDeleverd { get; set; }
+        [Required]
+        public DateTime Date { get; set; }
+
+        public bool IsDeleverd { get; set; }
 
     }
 

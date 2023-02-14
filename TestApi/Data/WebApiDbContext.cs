@@ -20,7 +20,7 @@ namespace TestApi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Order>()
-                .Property(o => o.totalAmount)
+                .Property(o => o.TotalAmount)
                 .HasColumnType("decimal(18, 2)");
         }
 

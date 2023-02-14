@@ -29,8 +29,9 @@ namespace TestApi.Controllers
             var items = await _context.Item
                 .Select(x => new ItemViewModel
                 {
-                    name = x.name,
-                    qty = x.qty
+                    Id=x.itemID,
+                    Name = x.name,
+                    Qty = x.qty
                 })
                 .ToListAsync();
 

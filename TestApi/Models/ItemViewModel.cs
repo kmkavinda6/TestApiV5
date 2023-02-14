@@ -2,8 +2,8 @@
 {
     public class ItemViewModel
     {
-        
-        public string name { get; set; }   
-        public int qty { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }   
+        public int Qty { get; set; }
     }
 }

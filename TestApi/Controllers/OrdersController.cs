@@ -42,12 +42,74 @@ namespace TestApi.Controllers
             return order;
         }
 
+        [HttpGet("top-orders")]
+        public IActionResult GetTopOrdersForToday()
+        {
+            var today = DateTime.Today;
+
+            var orders = _context.Order
+                .Where(o => o.Date.Date == today)
+                .GroupBy(o => o.ItemID)
+                .OrderByDescending(g => g.Count())
+                .Take(3)
+                .Select(g => new
+                {
+                    ItemName = _context.Item
+                        .Where(i => i.itemID == g.Key)
+                        .Select(i => i.name)
+                        .FirstOrDefault(),
+                    Quantity = g.Sum(o => o.Qty)
+                })
+                .ToList();
+
+            return Ok(orders);
+        }
+
+        [HttpGet("delivery-counts")]
+        public IActionResult GetDeliveryCountsForToday()
+        {
+            var today = DateTime.Today;
+
+            var deliveredCount = _context.Order
+                .Count(o => o.IsDeleverd && o.Date.Date == today);
+
+            var notDeliveredCount = _context.Order
+                .Count(o => !o.IsDeleverd && o.Date.Date == today);
+
+            var result = new
+            {
+                DeliveredCount = deliveredCount,
+                NotDeliveredCount = notDeliveredCount
+            };
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id}")]        
+        public async Task<IActionResult> ChangeDeliveryStatus(int orderId)
+        {
+            using ( _context)
+            {
+                var order = await _context.Order.SingleOrDefaultAsync(o => o.OrderID == orderId);
+
+                if (order == null)
+                {
+                    return NotFound();
+                }
+
+                order.IsDeleverd = !order.IsDeleverd;
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+        }
+
         // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrder(int id, Order order)
         {
-            if (id != order.orderID)
+            if (id != order.OrderID)
             {
                 return BadRequest();
             }
@@ -81,7 +143,7 @@ namespace TestApi.Controllers
             _context.Order.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOrder", new { id = order.orderID }, order);
+            return CreatedAtAction("GetOrder", new { id = order.OrderID }, order);
         }
 
         // DELETE: api/Orders/5
@@ -102,7 +164,7 @@ namespace TestApi.Controllers
 
         private bool OrderExists(int id)
         {
-            return _context.Order.Any(e => e.orderID == id);
+            return _context.Order.Any(e => e.OrderID == id);
         }
     }
 }
