@@ -83,6 +83,48 @@ namespace TestApi.Controllers
 
             return Ok(orders);
         }
+
+        [HttpGet("orders-by-item")]
+        public IActionResult GetOrdersByItemForToday()
+        {
+            var today = DateTime.Today;
+
+            var orders = _context.Order
+                .Where(o => o.Date.Date == today)
+                .GroupBy(o => o.ItemID)
+                .Select(g => new
+                {
+                    ItemID = g.Key,
+                    TotalOrders = g.Count()
+                })
+                .ToList();
+
+            return Ok(orders);
+        }
+
+        [HttpGet("highest-order-salesrep")]
+        public IActionResult GetSalesRepWithHighestOrder()
+        {
+            var salesRep = _context.SalesReps
+                .Join(_context.Order, s => s.SalesRepID, o => o.SalesRepID, (s, o) => new { SalesRep = s, Order = o })
+                .GroupBy(x => x.SalesRep)
+                .Select(g => new
+                {
+                    g.Key.SalesRepID,
+                    TotalOrders = g.Sum(x => x.Order.Qty),
+                    SalesRep = g.Key
+                })
+                .OrderByDescending(x => x.TotalOrders)
+                .FirstOrDefault();
+
+            if (salesRep == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(salesRep.SalesRep);
+        }
+
         [HttpGet("delivery-counts")]
         public IActionResult GetDeliveryCountsForToday()
         {
