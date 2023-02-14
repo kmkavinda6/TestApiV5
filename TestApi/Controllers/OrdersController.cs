@@ -65,6 +65,24 @@ namespace TestApi.Controllers
             return Ok(orders);
         }
 
+        [HttpGet("orders-per-day")]
+        public IActionResult GetOrdersPerDayForLast7Days()
+        {
+            var end = DateTime.Today.AddDays(1);
+            var start = end.AddDays(-7);
+
+            var orders = _context.Order
+                .Where(o => o.Date >= start && o.Date < end)
+                .GroupBy(o => o.Date.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    Count = g.Count()
+                })
+                .ToList();
+
+            return Ok(orders);
+        }
         [HttpGet("delivery-counts")]
         public IActionResult GetDeliveryCountsForToday()
         {
