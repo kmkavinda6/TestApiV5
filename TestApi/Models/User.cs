@@ -27,24 +27,26 @@ namespace TestApi.Models
         [DataType(DataType.EmailAddress)]
         public string email { get; set; } = string.Empty;
 
+        public string password { get; set; } = string.Empty;
+
         /*  public enum UserType { 
 
               Admin,Manager,SalesRep
           }*/
 
-       /* public ICollection<Admin> Admins { get; set; }
-        public ICollection<Manager> Managers { get; set; }
-        public ICollection<SalesRep> SalesReps { get; set; }
+        /* public ICollection<Admin> Admins { get; set; }
+         public ICollection<Manager> Managers { get; set; }
+         public ICollection<SalesRep> SalesReps { get; set; }
 
-        public int? AdminId { get; set; }
-        public Admin Admin { get; set; }
+         public int? AdminId { get; set; }
+         public Admin Admin { get; set; }
 
-        public int? ManagerId { get; set; }
-        public Manager Manager { get; set; }
+         public int? ManagerId { get; set; }
+         public Manager Manager { get; set; }
 
 
-        public int? SalesRepId { get; set; }
-        public SalesRep SalesRep { get; set; }*/
+         public int? SalesRepId { get; set; }
+         public SalesRep SalesRep { get; set; }*/
 
 
 
