@@ -9,6 +9,7 @@ using System;
 using System.Threading.Tasks;
 using TestApi.Data;
 using TestApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -79,7 +80,8 @@ namespace TestApi.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-            new Claim(ClaimTypes.Name, user.UserID.ToString())
+            new Claim(ClaimTypes.Name, user.UserID.ToString()),
+          
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -87,8 +89,33 @@ namespace TestApi.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new { token = tokenString });
+            // return token and user details
+            return Ok(new
+            {
+                token = tokenString,
+                user = new
+                {
+                    user.UserID,
+                    user.userName,
+                    user.Lname,
+                    user.fName,
+                    user.userType,
+                    user.address,
+                    user.nic,
+                    user.phoneNo,
+                    
+                }
+            });
         }
+
+
+        /*[HttpGet]
+        [Route("userinfo")]
+        public IActionResult GetUserInfo()
+        {
+            var userId = User.FindFirst(ClaimTypes.Name)?.Value;
+            return Ok(new { userId });
+        }*/
 
         // PUT api/<AuthenticationController>/5
         /*[HttpPut("{id}")]
