@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TestApi.Models
 {
@@ -11,6 +12,9 @@ namespace TestApi.Models
 
         [Required]
         public int StoreID { get; set; }
+
+        [ForeignKey("StoreID")]
+        public virtual Store Store { get; set; }
 
         [Required]
         public int SalesRepID { get; set; }

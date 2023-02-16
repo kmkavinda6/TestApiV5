@@ -26,9 +26,24 @@ namespace TestApi.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrder()
+        public async Task<ActionResult<IEnumerable<OrderViewModel>>> GetOrder()
         {
-            return await _context.Order.ToListAsync();
+            var orders = await _context.Order
+                .Include(o => o.OrderItems)
+                .Include(o => o.Store)
+                .ToListAsync();
+
+            var result = orders.Select(o => new OrderViewModel
+            {
+                OrderID = o.OrderID,
+                StoreName = o.Store.Name,
+                SalesRepID = o.SalesRepID,
+                Date = o.Date,
+                IsDelivered = o.IsDelivered,
+                StoreAddress = o.Store.Address
+            });
+
+            return Ok(result);
         }
 
         // GET: api/Orders/5
@@ -197,7 +212,7 @@ namespace TestApi.Controllers
         public async Task<IActionResult> PlaceOrder([FromBody] OrderModel model)
         {
             // First, retrieve the store ID using the store name
-            var store = await _context.Store.FirstOrDefaultAsync(s => s.name == model.StoreName);
+            var store = await _context.Store.FirstOrDefaultAsync(s => s.Name == model.StoreName);
             if (store == null)
             {
                 return BadRequest($"Store with name {model.StoreName} not found.");
@@ -206,7 +221,7 @@ namespace TestApi.Controllers
             // Then, create the order
             var order = new Order
             {
-                StoreID = store.storeID,
+                StoreID = store.StoreID,
                 SalesRepID = model.SalesRepId,
                 TotalAmount = 0,
                 Date = DateTime.Now,

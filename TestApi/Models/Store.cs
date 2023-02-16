@@ -4,18 +4,18 @@ namespace TestApi.Models {
     public class Store
     {
         [Key]
-        public int storeID { get; set; }
+        public int StoreID { get; set; }
 
         [Required]
-        public string name { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
-        public string phoneNo { get; set; } = string.Empty;
+        public string PhoneNo { get; set; } = string.Empty;
 
-        public string ownerName { get; set; } = string.Empty;
+        public string OwnerName { get; set; } = string.Empty;
 
-        public string address { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
 
-        public string bRegNo {get; set; } = string.Empty;
+        public string BRegNo {get; set; } = string.Empty;
 
     }
 }

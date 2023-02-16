@@ -47,7 +47,7 @@ namespace TestApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStore(int id, Store store)
         {
-            if (id != store.storeID)
+            if (id != store.StoreID)
             {
                 return BadRequest();
             }
@@ -81,7 +81,7 @@ namespace TestApi.Controllers
             _context.Store.Add(store);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStore", new { id = store.storeID }, store);
+            return CreatedAtAction("GetStore", new { id = store.StoreID }, store);
         }
 
         // DELETE: api/Stores/5
@@ -102,7 +102,7 @@ namespace TestApi.Controllers
 
         private bool StoreExists(int id)
         {
-            return _context.Store.Any(e => e.storeID == id);
+            return _context.Store.Any(e => e.StoreID == id);
         }
     }
 }
