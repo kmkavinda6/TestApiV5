@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace TestApi.Models
@@ -14,19 +15,14 @@ namespace TestApi.Models
         [Required]
         public int SalesRepID { get; set; }
 
-        [Required]
-        public int ItemID { get; set; }
-
         public decimal TotalAmount { get; set; }
-
-        [Required]
-        public int Qty { get; set; }
 
         [Required]
         public DateTime Date { get; set; }
 
-        public bool IsDeleverd { get; set; }
+        public bool IsDelivered { get; set; }
 
+        public virtual List<OrderItem> OrderItems { get; set; }  // Add this line
     }
 
 }

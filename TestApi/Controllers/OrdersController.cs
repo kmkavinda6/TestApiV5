@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TestApi.Data;
 using TestApi.Models;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace TestApi.Controllers
 {
@@ -42,30 +44,12 @@ namespace TestApi.Controllers
             return order;
         }
 
-        [HttpGet("top-orders")]
-        public IActionResult GetTopOrdersForToday()
-        {
-            var today = DateTime.Today;
+        
+       
 
-            var orders = _context.Order
-                .Where(o => o.Date.Date == today)
-                .GroupBy(o => o.ItemID)
-                .OrderByDescending(g => g.Count())
-                .Take(3)
-                .Select(g => new
-                {
-                    ItemName = _context.Item
-                        .Where(i => i.itemID == g.Key)
-                        .Select(i => i.name)
-                        .FirstOrDefault(),
-                    Quantity = g.Sum(o => o.Qty)
-                })
-                .ToList();
 
-            return Ok(orders);
-        }
 
-        [HttpGet("orders-per-day")]
+                [HttpGet("orders-per-day")]
         public IActionResult GetOrdersPerDayForLast7Days()
         {
             var end = DateTime.Today.AddDays(1);
@@ -84,57 +68,19 @@ namespace TestApi.Controllers
             return Ok(orders);
         }
 
-        [HttpGet("orders-by-item")]
-        public IActionResult GetOrdersByItemForToday()
-        {
-            var today = DateTime.Today;
+        
 
-            var orders = _context.Order
-                .Where(o => o.Date.Date == today)
-                .GroupBy(o => o.ItemID)
-                .Select(g => new
-                {
-                    ItemID = g.Key,
-                    TotalOrders = g.Count()
-                })
-                .ToList();
-
-            return Ok(orders);
-        }
-
-        [HttpGet("highest-order-salesrep")]
-        public IActionResult GetSalesRepWithHighestOrder()
-        {
-            var salesRep = _context.SalesReps
-                .Join(_context.Order, s => s.SalesRepID, o => o.SalesRepID, (s, o) => new { SalesRep = s, Order = o })
-                .GroupBy(x => x.SalesRep)
-                .Select(g => new
-                {
-                    g.Key.SalesRepID,
-                    TotalOrders = g.Sum(x => x.Order.Qty),
-                    SalesRep = g.Key
-                })
-                .OrderByDescending(x => x.TotalOrders)
-                .FirstOrDefault();
-
-            if (salesRep == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(salesRep.SalesRep);
-        }
-
+        
         [HttpGet("delivery-counts")]
         public IActionResult GetDeliveryCountsForToday()
         {
             var today = DateTime.Today;
 
             var deliveredCount = _context.Order
-                .Count(o => o.IsDeleverd && o.Date.Date == today);
+                .Count(o => o.IsDelivered && o.Date.Date == today);
 
             var notDeliveredCount = _context.Order
-                .Count(o => !o.IsDeleverd && o.Date.Date == today);
+                .Count(o => !o.IsDelivered && o.Date.Date == today);
 
             var result = new
             {
@@ -157,7 +103,7 @@ namespace TestApi.Controllers
                     return NotFound();
                 }
 
-                order.IsDeleverd = !order.IsDeleverd;
+                order.IsDelivered = !order.IsDelivered;
                 await _context.SaveChangesAsync();
 
                 return Ok();
@@ -206,45 +152,90 @@ namespace TestApi.Controllers
                     return CreatedAtAction("GetOrder", new { id = order.OrderID }, order);
                 }*/
 
-        [HttpPost]
-        public IActionResult PlaceOrder(string storeName, string itemName, int qty, int salesRepID)
-        {
-            // Look up the store by name
-            Store store = _context.Store.FirstOrDefault(s => s.name == storeName);
+        /* [HttpPost]
+         public IActionResult PlaceOrder(string storeName, string itemName, int qty, int salesRepID)
+         {
+             // Look up the store by name
+             Store store = _context.Store.FirstOrDefault(s => s.name == storeName);
 
+             if (store == null)
+             {
+                 return NotFound("Store not found");
+             }
+
+             // Look up the item by name
+             Item item = _context.Item.FirstOrDefault(i => i.name == itemName);
+
+             if (item == null)
+             {
+                 return NotFound("Item not found");
+             }
+
+             // Create the order
+             Order order = new Order
+             {
+                 StoreID = store.storeID,
+                 SalesRepID = salesRepID,
+                 ItemID = item.itemID,
+                 Qty = qty,
+                 Date = DateTime.Now
+             };
+
+             // Calculate the total amount
+             order.TotalAmount = item.price * qty;
+
+             // Add the order to the context and save changes
+             _context.Order.Add(order);
+             _context.SaveChanges();
+
+             return Ok("Order placed successfully");
+         }
+ */
+        [HttpPost]
+        [Route("PlaceOrder")]
+        public IActionResult PlaceOrder([FromBody] OrderModel model)
+        {
+            // First, retrieve the store ID using the store name
+            var store = _context.Store.FirstOrDefault(s => s.name == model.StoreName);
             if (store == null)
             {
-                return NotFound("Store not found");
+                return BadRequest($"Store with name {model.StoreName} not found.");
             }
 
-            // Look up the item by name
-            Item item = _context.Item.FirstOrDefault(i => i.name == itemName);
-
-            if (item == null)
-            {
-                return NotFound("Item not found");
-            }
-
-            // Create the order
-            Order order = new Order
+            // Then, create the order
+            var order = new Order
             {
                 StoreID = store.storeID,
-                SalesRepID = salesRepID,
-                ItemID = item.itemID,
-                Qty = qty,
-                Date = DateTime.Now
+                SalesRepID = model.SalesRepId,
+                TotalAmount = 0,
+                Date = DateTime.Now,
+                IsDelivered = false
             };
 
-            // Calculate the total amount
-            order.TotalAmount = item.price * qty;
+            // Add each item to the order and calculate the total amount
+            for (int i = 0; i < model.ItemNames.Count; i++)
+            {
+                var item = _context.Item.FirstOrDefault(it => it.name == model.ItemNames[i]);
+                if (item == null)
+                {
+                    return BadRequest($"Item with name {model.ItemNames[i]} not found.");
+                }
 
-            // Add the order to the context and save changes
+                var orderItem = new OrderItem
+                {
+                    ItemID = item.itemID,
+                    Qty = model.Qtys[i]
+                };
+
+                order.OrderItems.Add(orderItem);
+                order.TotalAmount += item.price * model.Qtys[i];
+            }
+
             _context.Order.Add(order);
             _context.SaveChanges();
 
-            return Ok("Order placed successfully");
+            return Ok($"Order with ID {order.OrderID} placed successfully.");
         }
-
         // DELETE: api/Orders/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
