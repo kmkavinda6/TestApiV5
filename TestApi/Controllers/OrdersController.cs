@@ -213,22 +213,22 @@ namespace TestApi.Controllers
             };
 
             // Add each item to the order and calculate the total amount
-            for (int i = 0; i < model.ItemNames.Count; i++)
+            foreach (var itemQty in model.ItemQuantities)
             {
-                var item = _context.Item.FirstOrDefault(it => it.name == model.ItemNames[i]);
+                var item = _context.Item.FirstOrDefault(it => it.name == itemQty.ItemName);
                 if (item == null)
                 {
-                    return BadRequest($"Item with name {model.ItemNames[i]} not found.");
+                    return BadRequest($"Item with name {itemQty.ItemName} not found.");
                 }
 
                 var orderItem = new OrderItem
                 {
                     ItemID = item.itemID,
-                    Qty = model.Qtys[i]
+                    Qty = itemQty.Qty
                 };
 
                 order.OrderItems.Add(orderItem);
-                order.TotalAmount += item.price * model.Qtys[i];
+                order.TotalAmount += item.price * itemQty.Qty;
             }
 
             _context.Order.Add(order);
@@ -236,6 +236,7 @@ namespace TestApi.Controllers
 
             return Ok($"Order with ID {order.OrderID} placed successfully.");
         }
+
         // DELETE: api/Orders/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)

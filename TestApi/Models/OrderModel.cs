@@ -6,7 +6,6 @@ namespace TestApi.Models
     {
         public string StoreName { get; set; }
         public int SalesRepId { get; set; }
-        public List<string> ItemNames { get; set; }
-        public List<int> Qtys { get; set; }
+        public List<ItemQtyModel> ItemQuantities { get; set; }
     }
 }
