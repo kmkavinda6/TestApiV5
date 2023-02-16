@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Console;
 using TestApi.Data;
 using TestApi.Models;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
@@ -193,10 +194,10 @@ namespace TestApi.Controllers
  */
         [HttpPost]
         [Route("PlaceOrder")]
-        public IActionResult PlaceOrder([FromBody] OrderModel model)
+        public async Task<IActionResult> PlaceOrder([FromBody] OrderModel model)
         {
             // First, retrieve the store ID using the store name
-            var store = _context.Store.FirstOrDefault(s => s.name == model.StoreName);
+            var store = await _context.Store.FirstOrDefaultAsync(s => s.name == model.StoreName);
             if (store == null)
             {
                 return BadRequest($"Store with name {model.StoreName} not found.");
@@ -210,20 +211,21 @@ namespace TestApi.Controllers
                 TotalAmount = 0,
                 Date = DateTime.Now,
                 IsDelivered = false,
-                OrderItems = new List<OrderItem>() // Create an empty list of order items
+                OrderItems = new List<OrderItem>()
             };
 
             // Add each item to the order and calculate the total amount
             foreach (var itemQty in model.ItemQuantities)
             {
-                var item = _context.Item.FirstOrDefault(it => it.name == itemQty.ItemName);
+                var item = await _context.Item.FirstOrDefaultAsync(it => it.name == itemQty.ItemName);
                 if (item == null)
                 {
                     return BadRequest($"Item with name {itemQty.ItemName} not found.");
                 }
-
+                Console.WriteLine(item.name);
                 var orderItem = new OrderItem
                 {
+                    
                     ItemID = item.itemID,
                     Qty = itemQty.Qty
                 };
@@ -232,11 +234,13 @@ namespace TestApi.Controllers
                 order.TotalAmount += item.price * itemQty.Qty;
             }
 
-            _context.Order.Add(order);
-            _context.SaveChanges();
+            await _context.Order.AddAsync(order);
+            await _context.SaveChangesAsync();
 
             return Ok($"Order with ID {order.OrderID} placed successfully.");
         }
+
+
 
         // DELETE: api/Orders/5
         [HttpDelete("{id}")]
