@@ -15,7 +15,7 @@ namespace TestApi.Data
         public DbSet<TestApi.Models.Order> Order { get; set; }
         public DbSet<TestApi.Models.Stock> Stock { get; set; }
         public DbSet<TestApi.Models.Store> Store { get; set; }
-
+        public DbSet<TestApi.Models.OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

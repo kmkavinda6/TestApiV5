@@ -84,9 +84,40 @@ namespace TestApi.Controllers
             return Ok(orders);
         }
 
-        
+        [HttpGet("most-ordered-item")]
+        public async Task<IActionResult> GetMostOrderedItem()
+        {
+            var today = DateTime.Today;
 
-        
+            var item = await _context.OrderItems
+                .Where(oi => oi.Order.Date == today)
+                .GroupBy(oi => oi.Item.name)
+                .OrderByDescending(g => g.Sum(oi => oi.Qty))
+                .Select(g => new {
+                    ItemName = g.Key,
+                    Quantity = g.Sum(oi => oi.Qty)
+                })
+                .FirstOrDefaultAsync();
+
+            return Ok(item);
+           
+        }
+
+
+        [HttpGet]
+        [Route("orders/count")]
+        public async Task<ActionResult<int>> GetOrdersCountToday()
+        {
+            DateTime today = DateTime.Today;
+            int count = await _context.Order
+                .Where(o => o.Date == today)
+                .CountAsync();
+
+            return Ok(count);
+        }
+
+
+
         [HttpGet("delivery-counts")]
         public IActionResult GetDeliveryCountsForToday()
         {
@@ -272,6 +303,8 @@ namespace TestApi.Controllers
 
             return NoContent();
         }
+
+       
 
         private bool OrderExists(int id)
         {

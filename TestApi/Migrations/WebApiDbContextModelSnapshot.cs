@@ -143,6 +143,8 @@ namespace TestApi.Migrations
 
                     b.HasKey("OrderID");
 
+                    b.HasIndex("StoreID");
+
                     b.ToTable("Order");
                 });
 
@@ -168,7 +170,7 @@ namespace TestApi.Migrations
 
                     b.HasIndex("OrderID");
 
-                    b.ToTable("OrderItem");
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("TestApi.Models.SalesRep", b =>
@@ -234,30 +236,41 @@ namespace TestApi.Migrations
 
             modelBuilder.Entity("TestApi.Models.Store", b =>
                 {
-                    b.Property<int>("storeID")
+                    b.Property<int>("StoreID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("address")
+                    b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("bRegNo")
+                    b.Property<string>("BRegNo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("name")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ownerName")
+                    b.Property<string>("OwnerName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("phoneNo")
+                    b.Property<string>("PhoneNo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("storeID");
+                    b.HasKey("StoreID");
 
                     b.ToTable("Store");
+                });
+
+            modelBuilder.Entity("TestApi.Models.Order", b =>
+                {
+                    b.HasOne("TestApi.Models.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("TestApi.Models.OrderItem", b =>

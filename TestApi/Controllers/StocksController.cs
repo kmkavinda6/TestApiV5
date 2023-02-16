@@ -28,6 +28,7 @@ namespace TestApi.Controllers
             return await _context.Stock.ToListAsync();
         }
 
+
         // GET: api/Stocks/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Stock>> GetStock(int id)
@@ -40,6 +41,57 @@ namespace TestApi.Controllers
             }
 
             return stock;
+        }
+
+        [HttpPost]
+        [Route("StoreStock")]
+
+        public IActionResult AddStockAndItem([FromBody] StockAndItemData data)
+        {
+            try
+            {
+                // Check if the data is valid
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                // Create a new stock object
+                var newStock = new Stock
+                {
+                    managerID = data.ManagerId,
+                    company = data.CompanyName,
+                    date = DateTime.Now
+                };
+
+                // Add the new stock object to the database
+                _context.Stock.Add(newStock);
+                _context.SaveChanges();
+
+                // Create a new item object for each item in the request
+                foreach (var itemData in data.Items)
+                {
+                    var newItem = new Item
+                    {
+                        name = itemData.name,
+                        qty = itemData.qty,
+                        expDate = itemData.expDate,
+                        price = itemData.price,
+                        batchID = newStock.batchID
+                    };
+
+                    // Add the new item object to the database
+                    _context.Item.Add(newItem);
+                }
+
+                _context.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         // PUT: api/Stocks/5

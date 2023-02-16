@@ -10,8 +10,8 @@ using TestApi.Data;
 namespace TestApi.Migrations
 {
     [DbContext(typeof(WebApiDbContext))]
-    [Migration("20230214112727_test2")]
-    partial class test2
+    [Migration("20230216132833_new")]
+    partial class @new
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -123,32 +123,56 @@ namespace TestApi.Migrations
 
             modelBuilder.Entity("TestApi.Models.Order", b =>
                 {
-                    b.Property<int>("orderID")
+                    b.Property<int>("OrderID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("isDeleverd")
+                    b.Property<bool>("IsDelivered")
                         .HasColumnType("bit");
 
-                    b.Property<int>("itemID")
+                    b.Property<int>("SalesRepID")
                         .HasColumnType("int");
 
-                    b.Property<int>("qty")
+                    b.Property<int>("StoreID")
                         .HasColumnType("int");
 
-                    b.Property<int>("storeID")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("totalAmount")
+                    b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("orderID");
+                    b.HasKey("OrderID");
+
+                    b.HasIndex("StoreID");
 
                     b.ToTable("Order");
+                });
+
+            modelBuilder.Entity("TestApi.Models.OrderItem", b =>
+                {
+                    b.Property<int>("OrderItemID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("ItemID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Qty")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderItemID");
+
+                    b.HasIndex("ItemID");
+
+                    b.HasIndex("OrderID");
+
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("TestApi.Models.SalesRep", b =>
@@ -214,30 +238,65 @@ namespace TestApi.Migrations
 
             modelBuilder.Entity("TestApi.Models.Store", b =>
                 {
-                    b.Property<int>("storeID")
+                    b.Property<int>("StoreID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("address")
+                    b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("bRegNo")
+                    b.Property<string>("BRegNo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("name")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ownerName")
+                    b.Property<string>("OwnerName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("phoneNo")
+                    b.Property<string>("PhoneNo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("storeID");
+                    b.HasKey("StoreID");
 
                     b.ToTable("Store");
+                });
+
+            modelBuilder.Entity("TestApi.Models.Order", b =>
+                {
+                    b.HasOne("TestApi.Models.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Store");
+                });
+
+            modelBuilder.Entity("TestApi.Models.OrderItem", b =>
+                {
+                    b.HasOne("TestApi.Models.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TestApi.Models.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("TestApi.Models.Order", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }
