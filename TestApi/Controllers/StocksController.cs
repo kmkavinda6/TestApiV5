@@ -73,10 +73,10 @@ namespace TestApi.Controllers
                 {
                     var newItem = new Item
                     {
-                        name = itemData.name,
-                        qty = itemData.qty,
-                        expDate = itemData.expDate,
-                        price = itemData.price,
+                        name = itemData.ItemName,
+                        qty = itemData.Qty,
+                        expDate = itemData.ExpireDate,
+                        price = Convert.ToInt32(itemData.Price),
                         batchID = newStock.batchID
                     };
 
