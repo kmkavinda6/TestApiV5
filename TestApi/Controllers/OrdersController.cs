@@ -197,13 +197,52 @@ namespace TestApi.Controllers
 
         // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
-        {
-            _context.Order.Add(order);
-            await _context.SaveChangesAsync();
+        /*        [HttpPost]
+                public async Task<ActionResult<Order>> PostOrder(Order order)
+                {
+                    _context.Order.Add(order);
+                    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOrder", new { id = order.OrderID }, order);
+                    return CreatedAtAction("GetOrder", new { id = order.OrderID }, order);
+                }*/
+
+        [HttpPost]
+        public IActionResult PlaceOrder(string storeName, string itemName, int qty, int salesRepID)
+        {
+            // Look up the store by name
+            Store store = _context.Store.FirstOrDefault(s => s.name == storeName);
+
+            if (store == null)
+            {
+                return NotFound("Store not found");
+            }
+
+            // Look up the item by name
+            Item item = _context.Item.FirstOrDefault(i => i.name == itemName);
+
+            if (item == null)
+            {
+                return NotFound("Item not found");
+            }
+
+            // Create the order
+            Order order = new Order
+            {
+                StoreID = store.storeID,
+                SalesRepID = salesRepID,
+                ItemID = item.itemID,
+                Qty = qty,
+                Date = DateTime.Now
+            };
+
+            // Calculate the total amount
+            order.TotalAmount = item.price * qty;
+
+            // Add the order to the context and save changes
+            _context.Order.Add(order);
+            _context.SaveChanges();
+
+            return Ok("Order placed successfully");
         }
 
         // DELETE: api/Orders/5
