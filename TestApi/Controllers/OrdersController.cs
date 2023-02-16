@@ -116,6 +116,28 @@ namespace TestApi.Controllers
             return Ok(count);
         }
 
+        [HttpGet]
+        [Route("api/salesreps-top3")]
+        public async Task<IActionResult> GetTop3SalesReps()
+        {
+            var topSalesReps = await _context.Order
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Item)
+                .GroupBy(o => o.SalesRepID) // group orders by sales rep
+                .Select(grp => new
+                {
+                    SalesRep = grp.Key,
+                    OrderCount = grp.Count(),
+                    TotalSales = grp.Sum(o => o.TotalAmount)
+                })
+                .OrderByDescending(x => x.TotalSales)
+                .Take(3)
+                .ToListAsync();
+
+            return Ok(topSalesReps);
+        }
+
+
 
 
         [HttpGet("delivery-counts")]
@@ -138,7 +160,7 @@ namespace TestApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("{id}")]        
+        [HttpPost]        
         public async Task<IActionResult> ChangeDeliveryStatus(int orderId)
         {
             using ( _context)
