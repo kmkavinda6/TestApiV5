@@ -209,7 +209,8 @@ namespace TestApi.Controllers
                 SalesRepID = model.SalesRepId,
                 TotalAmount = 0,
                 Date = DateTime.Now,
-                IsDelivered = false
+                IsDelivered = false,
+                OrderItems = new List<OrderItem>() // Create an empty list of order items
             };
 
             // Add each item to the order and calculate the total amount
