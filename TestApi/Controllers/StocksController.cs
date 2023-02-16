@@ -75,7 +75,6 @@ namespace TestApi.Controllers
                     {
                         name = itemData.ItemName,
                         qty = itemData.Qty,
-                        expDate = itemData.ExpireDate,
                         price = Convert.ToInt32(itemData.Price),
                         batchID = newStock.batchID
                     };
